@@ -400,6 +400,22 @@ config USB_FOTG210_HCD
 	  To compile this driver as a module, choose M here: the
 	  module will be called fotg210-hcd.
 
+if USB_FOTG210_HCD
+
+config USB_FOTG210_HCD_BL808_INT_FIX
+	bool "BL808 interrupt fix"
+	default y
+	help
+	  Interrupt signal is not connected directly to C906 core in BL808
+	  but to E907. Therefore a bypass is required. Either IPC or WL system
+	  all interrupt can be used and we are using WL system all interrupt.
+
+	  E907 interrupt source is high level triggered and FOTG210 interrupt
+	  signal(defaults to active low) is inverted when integrated.
+	  As a result, we do not need to invert the interrupt signal polarity.
+
+endif # USB_FOTG210_HCD
+
 config USB_MAX3421_HCD
 	tristate "MAX3421 HCD (USB-over-SPI) support"
 	depends on USB && SPI

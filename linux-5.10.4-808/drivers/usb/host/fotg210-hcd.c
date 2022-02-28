@@ -5119,8 +5119,24 @@ static irqreturn_t fotg210_irq(struct usb_hcd *hcd)
 	struct fotg210_hcd *fotg210 = hcd_to_fotg210(hcd);
 	u32 status, masked_status, pcd_status = 0, cmd;
 	int bh;
+#ifdef CONFIG_USB_FOTG210_HCD_BL808_INT_FIX
+	u32 tmp;
+#endif
 
 	spin_lock(&fotg210->lock);
+
+#ifdef CONFIG_USB_FOTG210_HCD_BL808_INT_FIX
+	/* irq status */
+	tmp = fotg210_readl(fotg210, fotg210->wl_all_int_regs);
+
+	/*
+	 * clear irq
+	 *
+	 * USB is bit 21. Clear all bits here as only USB is using
+	 * WL Sys All Int.
+	 */
+	fotg210_writel(fotg210, tmp, fotg210->wl_all_int_regs + 0x10);
+#endif
 
 	status = fotg210_readl(fotg210, &fotg210->regs->status);
 
@@ -5546,8 +5562,17 @@ static void fotg210_init(struct fotg210_hcd *fotg210)
 {
 	u32 value;
 
+#ifdef CONFIG_USB_FOTG210_HCD_BL808_INT_FIX
+	/*
+	 * Not changing interrupt polarity to active high here as
+	 * FOTG210 interrupt signal is inverted when wired to
+	 * interrupt controller.
+	 */
+	iowrite32(GMIR_MDEV_INT | GMIR_MOTG_INT, &fotg210->regs->gmir);
+#else
 	iowrite32(GMIR_MDEV_INT | GMIR_MOTG_INT | GMIR_INT_POLARITY,
 			&fotg210->regs->gmir);
+#endif
 
 	value = ioread32(&fotg210->regs->otgcsr);
 	value &= ~OTGCSR_A_BUS_DROP;
@@ -5570,6 +5595,9 @@ static int fotg210_hcd_probe(struct platform_device *pdev)
 	int irq;
 	int retval = -ENODEV;
 	struct fotg210_hcd *fotg210;
+#ifdef CONFIG_USB_FOTG210_HCD_BL808_INT_FIX
+	void *wl_all_int_regs;
+#endif
 
 	if (usb_disabled())
 		return -ENODEV;
@@ -5595,6 +5623,12 @@ static int fotg210_hcd_probe(struct platform_device *pdev)
 
 	hcd->has_tt = 1;
 
+#ifdef CONFIG_USB_FOTG210_HCD_BL808_INT_FIX
+	wl_all_int_regs = ioremap(0x20000050, 0x10);
+	if (!wl_all_int_regs)
+		goto failed_put_hcd;
+#endif
+
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	hcd->regs = devm_ioremap_resource(&pdev->dev, res);
 	if (IS_ERR(hcd->regs)) {
@@ -5608,6 +5642,9 @@ static int fotg210_hcd_probe(struct platform_device *pdev)
 	fotg210 = hcd_to_fotg210(hcd);
 
 	fotg210->caps = hcd->regs;
+#ifdef CONFIG_USB_FOTG210_HCD_BL808_INT_FIX
+	fotg210->wl_all_int_regs = wl_all_int_regs;
+#endif
 
 	/* It's OK not to supply this clock */
 	fotg210->pclk = clk_get(dev, "PCLK");

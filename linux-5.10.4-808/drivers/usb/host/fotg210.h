@@ -88,6 +88,9 @@ struct fotg210_hcd {			/* one per controller */
 	struct fotg210_caps __iomem *caps;
 	struct fotg210_regs __iomem *regs;
 	struct ehci_dbg_port __iomem *debug;
+#ifdef CONFIG_USB_FOTG210_HCD_BL808_INT_FIX
+	void __iomem *wl_all_int_regs;
+#endif
 
 	__u32			hcs_params;	/* cached register copy */
 	spinlock_t		lock;
