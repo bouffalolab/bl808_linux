@@ -1,0 +1,106 @@
+/dts-v1/;
+/ {
+	model = "T-HEAD c906 simple soc";
+	compatible = "thead,c910_simple_soc";
+	#address-cells = <2>;
+	#size-cells = <2>;
+
+	memory@0 {
+		device_type = "memory";
+		reg = <0x0 0x50000000 0x0 0x04000000>;
+	};
+
+	cpus {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		timebase-frequency = <1000000>;
+		cpu@0 {
+			device_type = "cpu";
+			reg = <0>;
+			status = "okay";
+			compatible = "riscv";
+			riscv,isa = "rv64imafdcvsu";
+			mmu-type = "riscv,sv39";
+			cpu0_intc: interrupt-controller {
+				#interrupt-cells = <1>;
+				compatible = "riscv,cpu-intc";
+				interrupt-controller;
+			};
+		};
+	};
+
+	soc {
+		#address-cells = <2>;
+		#size-cells = <2>;
+		compatible = "simple-bus";
+		ranges;
+
+		intc: interrupt-controller@e0000000 {
+			#interrupt-cells = <1>;
+			compatible = "riscv,plic0";
+			interrupt-controller;
+			interrupts-extended = <
+				&cpu0_intc  0xffffffff &cpu0_intc  9
+				>;
+			reg = <0x0 0xe0000000 0x0 0x04000000>;
+			reg-names = "control";
+			riscv,max-priority = <7>;
+			riscv,ndev = <64>;
+		};
+
+		mm_xclk: mm-clock {
+			compatible = "fixed-clock";
+			clock-frequency = <40000000>;
+			clock-output-names = "mm_xclk";
+			#clock-cells = <0>;
+		};
+
+		pmu: pmu {
+			interrupt-parent = <&cpu0_intc>;
+			interrupts = <17>;
+			compatible = "thead,c900_pmu";
+		};
+
+		serial@30002000 {
+			compatible = "bflb-uart,uart0";
+			reg = <0x0 0x30002000 0x0 0x1000>;
+			interrupt-parent = <&intc>;
+			interrupts = <20>;
+			clocks = <&mm_xclk>;
+			clock-frequency = <40000000>;
+			clock-names = "baudclk";
+			status = "okay";
+		};
+
+		xip_flash@58500000 {
+				compatible = "mtd-rom";
+				reg = <0x0 0x58500000 0x0 0x400000>;
+				linux,mtd-name = "xip-flash.0";
+				erase-size = <0x10000>;
+				bank-width = <4>;
+				#address-cells = <1>;
+				#size-cells = <1>;
+
+				/* param@0 {
+						label = "param";
+						reg = <0x00000 0x380000>;
+						read-only;
+				}; */
+
+				rootfs@0 {
+						label = "rootfs";
+						reg = <0x00000 0x280000>;
+						read-only;
+				};
+		};
+
+	};
+
+	chosen {
+		/* bootargs = "console=ttyS0,2000000 loglevel=8 earlyprintk earlycon=sbi root=/dev/ram0 initrd=0x52000000"; */
+		bootargs = "console=ttyS0,2000000 loglevel=8 earlyprintk earlycon=sbi root=/dev/mtdblock0 ro rootfstype=squashfs";
+		linux,initrd-start = <0x0 0x52000000>;
+		linux,initrd-end = <0x0 0x52941784>;
+		stdout-path = "/soc/serial@30002000:2000000";
+	};
+};
