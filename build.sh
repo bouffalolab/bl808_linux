@@ -11,12 +11,18 @@ NEWLIB_ELF_CROSS_PREFIX=$SHELL_DIR/toolchain/elf_newlib_toolchain/bin/riscv64-un
 
 BUILD_TARGET=$1
 
+if [[ ! -e $OUT_DIR ]]; then
+    mkdir $OUT_DIR
+fi
 
 build_linux()
 {
     echo " "
     echo "================ build linux kernel ================"
     cd $SHELL_DIR/linux-5.10.4-808
+    if [ ! -f .config ]; then
+        cp c906.config .config
+    fi
     make ARCH=riscv CROSS_COMPILE=$LINUX_CROSS_PREFIX Image -j$(nproc)
     echo " "
     echo "=========== high compression kernel image =========="
@@ -88,6 +94,22 @@ build_all()
     build_whole_bin
 }
 
+clean_all()
+{
+    echo " "
+    echo "================ clean out ================"
+    find ./out ! -name 'squashfs_test.img' ! -name 'merge_7_5Mbin.py' -type f -exec rm -f {} +
+    echo " "
+    echo "================ clean kernel ================"
+    cd $SHELL_DIR/linux-5.10.4-808
+    make ARCH=riscv CROSS_COMPILE=$LINUX_CROSS_PREFIX mrproper
+    echo " "
+    echo "================== clean opensbi ==================="
+    cd $SHELL_DIR/opensbi-0.6-808
+    make PLATFORM=thead/c910 CROSS_COMPILE=$LINUX_CROSS_PREFIX distclean
+
+}
+
 case "$BUILD_TARGET" in
 --help)
     TARGET="kernel|kernel_config|opensbi|dtb|low_load|clean_load|whole_bin|all"
@@ -116,6 +138,9 @@ clean_load)
     ;;
 whole_bin)
     build_whole_bin
+    ;;
+clean_all)
+    clean_all
     ;;
 all)
     build_all
