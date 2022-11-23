@@ -1,0 +1,39 @@
+diff --git a/bl_mcu_sdk_bl808/bsp/board/bl808/bl808_barebone/pinmux_config.h b/bl_mcu_sdk_bl808/bsp/board/bl808/bl808_barebone/pinmux_config.h
+index e541c5aae..33bb60ed7 100755
+--- a/bl_mcu_sdk_bl808/bsp/board/bl808/bl808_barebone/pinmux_config.h
++++ b/bl_mcu_sdk_bl808/bsp/board/bl808/bl808_barebone/pinmux_config.h
+@@ -59,7 +59,7 @@
+ 
+ // <q> GPIO8 <2> [GPIO_FUN_UNUSED//GPIO_FUN_I2S//GPIO_FUN_SPI//GPIO_FUN_I2C//GPIO_FUN_PWM//GPIO_FUN_CAM//GPIO_FUN_USB//GPIO_FUN_UART0_RTS//GPIO_FUN_UART1_RTS//GPIO_FUN_ETHER_MAC//GPIO_FUN_QDEC]
+ // <i> config gpio8 function
+-#define CONFIG_GPIO8_FUNC GPIO_FUN_UART3
++#define CONFIG_GPIO8_FUNC GPIO_FUN_UNUSED
+ 
+ // <q> GPIO9 <2> [GPIO_FUN_UNUSED//GPIO_FUN_I2S//GPIO_FUN_SPI//GPIO_FUN_I2C//GPIO_FUN_PWM//GPIO_FUN_CAM//GPIO_FUN_USB//GPIO_FUN_UART0_RTS//GPIO_FUN_UART1_RTS//GPIO_FUN_ETHER_MAC//GPIO_FUN_QDEC]
+ // <i> config gpio9 function
+@@ -91,7 +91,7 @@
+ 
+ // <q> GPIO16 <2> [GPIO_FUN_UNUSED//GPIO_FUN_I2S//GPIO_FUN_SPI//GPIO_FUN_I2C//GPIO_FUN_PWM//GPIO_FUN_CAM//GPIO_FUN_USB//GPIO_FUN_UART0_RTS//GPIO_FUN_UART1_RTS//GPIO_FUN_ETHER_MAC//GPIO_FUN_QDEC]
+ // <i> config gpio16 function
+-#define CONFIG_GPIO16_FUNC GPIO_FUN_UNUSED
++#define CONFIG_GPIO16_FUNC GPIO_FUN_UART3
+ 
+ // <q> GPIO17 <2> [GPIO_FUN_UNUSED//GPIO_FUN_I2S//GPIO_FUN_SPI//GPIO_FUN_I2C//GPIO_FUN_PWM//GPIO_FUN_CAM//GPIO_FUN_USB//GPIO_FUN_UART0_RTS//GPIO_FUN_UART1_RTS//GPIO_FUN_ETHER_MAC//GPIO_FUN_QDEC]
+ // <i> config gpio17 function
+diff --git a/opensbi-0.6-808/platform/thead/c910/platform.c b/opensbi-0.6-808/platform/thead/c910/platform.c
+index 15d6dc0e5..10beaf5e4 100644
+--- a/opensbi-0.6-808/platform/thead/c910/platform.c
++++ b/opensbi-0.6-808/platform/thead/c910/platform.c
+@@ -87,8 +87,10 @@ static int c910_early_init(bool cold_boot)
+ 		writel(tmp, (void *)(0x30007000));
+ 		/* pinmux */
+ 		tmp = readl((void *)(0x200008e4));
+-		writel(0x00401502, (void *)0x200008e4); //IO8, TXD
+-		writel(0x00401517, (void *)0x200008d8); //IO5, RXD
++		// writel(0x00401502, (void *)0x200008e4); //IO8, TXD
++		// writel(0x00401517, (void *)0x200008d8); //IO5, RXD
++		writel(0x00401502, (void *)0x20000904); //IO16, TXD
++		writel(0x00401517, (void *)0x20000908); //IO17, RXD
+ 		//UART_IntMask(UART_DBG_ID, UART_INT_ALL, MASK);
+ 		tmp = readl((void *)(BFLB_CONSOLE_BASE + UART_INT_MASK_OFFSET));
+ 		tmp |= 0xfff;
