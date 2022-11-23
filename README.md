@@ -23,6 +23,7 @@ sudo apt install flex bison libncurses-dev device-tree-compiler lz4
 ```
 
 Download toolchains
+
 ```bash
 mkdir -p toolchain/cmake toolchain/elf_newlib_toolchain toolchain/linux_toolchain
 curl https://cmake.org/files/v3.19/cmake-3.19.3-Linux-x86_64.tar.gz | tar xz -C toolchain/cmake/ --strip-components=1
@@ -31,7 +32,9 @@ curl https://occ-oss-prod.oss-cn-hangzhou.aliyuncs.com/resource//1663142514282/X
 ```
 
 ## Compile
+
 Step by step
+
 ```bash
 ./build.sh --help
 ./build.sh opensbi
@@ -41,11 +44,15 @@ Step by step
 ./build.sh low_load
 ./build.sh whole_bin
 ```
+
 Or
+
 ```bash
 ./build.sh all
 ```
+
 Then find the firmwares under out
+
 ```bash
 ├── fw_jump.bin
 ├── hw.dtb.5M
@@ -58,6 +65,7 @@ Then find the firmwares under out
 ```
 
 ## Download Firmware
+
 - Get the latest version of DevCube from http://dev.bouffalolab.com/download
 - Connect BL808 board with PC by USB cable
 - Set BL808 board to programming mode
@@ -75,4 +83,5 @@ Then find the firmwares under out
 - Click 'Create & Download' again and wait until it's done
 
 ## Boot BL808 board
+
 Press and release RESET button, E907 will output log by IO14(TX)/IO15(RX) and C906 by IO5(RX)/IO8(TX)
