@@ -1,5 +1,7 @@
 out/*
 
+toolchain/*
+
 bl_mcu_sdk_bl808/out/*
 bl_mcu_sdk_bl808/build/*
 .vscode/settings.json
