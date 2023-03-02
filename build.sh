@@ -9,7 +9,12 @@ CMAKE=$SHELL_DIR/toolchain/cmake/bin/
 LINUX_CROSS_PREFIX=$SHELL_DIR/toolchain/linux_toolchain/bin/riscv64-unknown-linux-gnu-
 NEWLIB_ELF_CROSS_PREFIX=$SHELL_DIR/toolchain/elf_newlib_toolchain/bin/riscv64-unknown-elf-
 
-BUILD_TARGET=$1
+# if no arg given
+if [ $# -ne 1 ]; then
+	BUILD_TARGET="--help"
+else
+	BUILD_TARGET=$1
+fi
 
 if [[ ! -e $OUT_DIR ]]; then
     mkdir $OUT_DIR
