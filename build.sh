@@ -35,6 +35,12 @@ build_linux_config()
     echo " "
     echo "============ build linux kernel config ============="
     cd $SHELL_DIR/linux-5.10.4-808
+    # add old config for make menuconfig,
+    # otherwise it will take config from /boot/config-<kernel ver> of host,
+    # and kernel building will fail.
+    if [ ! -f .config ]; then
+        cp c906.config .config
+    fi
     make ARCH=riscv CROSS_COMPILE=$LINUX_CROSS_PREFIX menuconfig -j$(nproc)
 }
 
