@@ -85,3 +85,8 @@ Then find the firmwares under out
 ## Boot BL808 board
 
 Press and release RESET button, E907 will output log by IO14(TX)/IO15(RX) and C906 by IO5(RX)/IO8(TX)
+
+## Changelog
+
+2023-08-21
+- Add Wi-Fi support. https://github.com/bouffalolab/blwnet_xram
