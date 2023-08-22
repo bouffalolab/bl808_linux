@@ -9,7 +9,12 @@ CMAKE=$SHELL_DIR/toolchain/cmake/bin/
 LINUX_CROSS_PREFIX=$SHELL_DIR/toolchain/linux_toolchain/bin/riscv64-unknown-linux-gnu-
 NEWLIB_ELF_CROSS_PREFIX=$SHELL_DIR/toolchain/elf_newlib_toolchain/bin/riscv64-unknown-elf-
 
-BUILD_TARGET=$1
+# if no arg given
+if [ $# -ne 1 ]; then
+	BUILD_TARGET="--help"
+else
+	BUILD_TARGET=$1
+fi
 
 if [[ ! -e $OUT_DIR ]]; then
     mkdir $OUT_DIR
@@ -35,6 +40,12 @@ build_linux_config()
     echo " "
     echo "============ build linux kernel config ============="
     cd $SHELL_DIR/linux-5.10.4-808
+    # add old config for make menuconfig,
+    # otherwise it will take config from /boot/config-<kernel ver> of host,
+    # and kernel building will fail.
+    if [ ! -f .config ]; then
+        cp c906.config .config
+    fi
     make ARCH=riscv CROSS_COMPILE=$LINUX_CROSS_PREFIX menuconfig -j$(nproc)
 }
 
