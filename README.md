@@ -19,7 +19,7 @@ bl808 Linux
 Ubuntu20.04 needs to use apt to install the package:
 
 ```bash
-sudo apt install flex bison libncurses-dev device-tree-compiler lz4
+sudo apt install flex bison libncurses-dev device-tree-compiler lz4 bc
 ```
 
 Download toolchains
